@@ -17,16 +17,26 @@ export const goodsFromServer = [
   'Garlic',
 ];
 
-function getPreparedGoods(goods: [], sortField: string, reverse: boolean) {
+enum SortType {
+  Alphabetically = 'alphabetically',
+  Length = 'length',
+  Reset = 'reset',
+}
+
+function getPreparedGoods(
+  goods: string[],
+  sortField: SortType,
+  reverse: boolean,
+) {
   const preparedGoods = [...goods];
 
   if (sortField) {
     preparedGoods.sort((good1, good2) => {
       switch (sortField) {
-        case 'length':
+        case SortType.Length:
           return good1.length - good2.length;
 
-        case 'alphabetically':
+        case SortType.Alphabetically:
           return good1.localeCompare(good2);
 
         default:
@@ -43,8 +53,8 @@ function getPreparedGoods(goods: [], sortField: string, reverse: boolean) {
 }
 
 export const App: React.FC = () => {
-  const [sortField, setSortField] = useState('');
-  const [reverse, setReversed] = useState(false);
+  const [sortField, setSortField] = useState<SortType>(SortType.Reset);
+  const [reverse, setReverse] = useState(false);
   const sortedGoods = getPreparedGoods(goodsFromServer, sortField, reverse);
 
   return (
@@ -53,9 +63,9 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={cn('button is-info', {
-            'is-light': sortField !== 'alphabetically',
+            'is-light': sortField !== SortType.Alphabetically,
           })}
-          onClick={() => setSortField('alphabetically')}
+          onClick={() => setSortField(SortType.Alphabetically)}
         >
           Sort alphabetically
         </button>
@@ -63,28 +73,30 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={cn('button is-success', {
-            'is-light': sortField !== 'length',
+            'is-light': sortField !== SortType.Length,
           })}
-          onClick={() => setSortField('length')}
+          onClick={() => setSortField(SortType.Length)}
         >
           Sort by length
         </button>
 
         <button
           type="button"
-          className={cn('button is-warning', { 'is-light': !reverse })}
-          onClick={() => setReversed(!reverse)}
+          className={cn('button is-warning', {
+            'is-light': !reverse,
+          })}
+          onClick={() => setReverse(!reverse)}
         >
           Reverse
         </button>
 
-        {(sortField || reverse) && (
+        {(sortField !== SortType.Reset || reverse) && (
           <button
             type="button"
             className="button is-danger is-light"
             onClick={() => {
-              setSortField('');
-              setReversed(false);
+              setSortField(SortType.Reset);
+              setReverse(false);
             }}
           >
             Reset
